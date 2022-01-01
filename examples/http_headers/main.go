@@ -63,9 +63,20 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 	if err != nil {
 		proxywasm.LogCriticalf("failed to get request headers: %v", err)
 	}
+	for _, h := range hs {
+		proxywasm.LogInfof("before set: request header --> %s: %s", h[0], h[1])
+	}
+
+	for i := 0; i < len(hs); i++ {
+		hs[i][0] = "key-" + hs[i][0]
+		hs[i][1] = "value-" + hs[i][1]
+	}
+	if err := proxywasm.ReplaceHttpRequestHeaders(hs); err != nil {
+		proxywasm.LogCriticalf("failed to set request headers, new: %v, err: %v", hs, err)
+	}
 
 	for _, h := range hs {
-		proxywasm.LogInfof("request header --> %s: %s", h[0], h[1])
+		proxywasm.LogInfof("after set: request header --> %s: %s", h[0], h[1])
 	}
 	return types.ActionContinue
 }
