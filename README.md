@@ -1,60 +1,53 @@
-__This project is in its early stage, and the API is likely to change and not stable.__
+# tiflow-plugin-sdk
 
-# WebAssembly for Proxies (Go SDK) [![Build](https://github.com/tetratelabs/proxy-wasm-go-sdk/workflows/Test/badge.svg)](https://github.com/tetratelabs/proxy-wasm-go-sdk/actions) [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+tiflow-plugin-sdk是针对TiFlow的Go语言插件SDK, 可面向 TiCDC / DM 的WebAssembly插件引擎针对特定功能编写插件.
 
-The Go SDK for
- [Proxy-Wasm](https://github.com/proxy-wasm/spec), enabling developers to write Proxy-Wasm plugins in Go. 
-This SDK is powered by [TinyGo](https://tinygo.org/) and does not support the official Go compiler.
+本项目是 2021 TiDB Hackathon 参赛项目, RFC请参考: https://github.com/nooncall/letetlrock
 
-## Getting Started
+目前我们对DM组件的 `Column Mapping` 和 `Table Router` 功能实现了WebAssembly插件.
 
-- [examples](examples) directory contains the example codes on top of this SDK.
-- [OVERVIEW.md](doc/OVERVIEW.md) the overview of Proxy-Wasm, the API of this SDK, and the things you should know when writing plugins.
+## Quick Start
 
-## Requirements
+在examples下新建一个目录, add_suffix, 并新建一个main.go.
 
-- [Go](https://go.dev/dl/) 1.17 or higher.
-- [TinyGo](https://tinygo.org/) - This SDK depends on TinyGo and leverages its [WASI](https://github.com/WebAssembly/WASI) (WebAssembly System Interface) target. Please follow the official instruction [here](https://tinygo.org/getting-started/) for installing TinyGo.
-- [Envoy](https://www.envoyproxy.io) - To run compiled examples, you need to have Envoy binary. We recommend using [func-c](https://func-e.io) as the easiest way to get started with Envoy. Alternatively, you can follow [the official instruction](https://www.envoyproxy.io/docs/envoy/latest/start/install).
+```go
+package main
 
-## Installation
+import (
+	"github.com/nooncall/tiflow-plugin-sdk/proxywasm"
+	"github.com/nooncall/tiflow-plugin-sdk/sdk"
+)
 
-`go get` cannot be used for fetching this SDK and updating go.mod of your project due to the existence of "extern" functions which are only available in TinyGo. Instead, we can manually setup go.mod and go.sum via `go mod edit` and `go mod download`: 
+func main() {
+	// 1. 提供一个ColumnMappingHandler
+	// 该handler做修改列值, 对该列的值添加-suffix后缀
+	handler := func(s string) string {
+		return s + "-suffix"
+	}
 
-```
-$ go mod edit -require=github.com/tetratelabs/proxy-wasm-go-sdk@main
-$ go mod download github.com/tetratelabs/proxy-wasm-go-sdk
-```
+	// 2. 创建wasm VM Context
+	vmContext := sdk.NewColumnMappingPlugin(handler)
 
-## Build and run Examples
-
-```bash
-# Build all examples.
-make build.examples
-
-# Build a specific example.
-make build.example name=helloworld
-
-# Run a specific example.
-make run name=helloworld
+	// 3. 注册VM Context
+	proxywasm.SetVMContext(vmContext)
+}
 ```
 
-## Compatible Envoy builds
+执行命令:
 
-Envoy is the first host side implementation of Proxy-Wasm ABI, 
-and we run end-to-end tests with multiple versions of Envoy and Envoy-based [istio/proxy](https://github.com/istio/proxy) in order to verify Proxy-Wasm Go SDK works as expected.
+```shell
+make build.example name=add_suffix
+```
 
-Please refer to [workflow.yaml](.github/workflows/workflow.yaml) for which version is used for End-to-End tests.
+在examples/add_suffix/目录下会生成main.go.wasm文件, 将该文件放到tiflow的指定目录下,
 
-## Contributing
+并使用修改后的 [tidb-tools](https://github.com/nooncall/tidb-tools) 即可工作.  
 
-We welcome contributions from the community! See [CONTRIBUTING.md](doc/CONTRIBUTING.md) for how to contribute to this repository.
+## 插件
+### Column Mapping
 
-## External links
+与DM中的Column Mapping规则搭配使用, 可实现自定义列值修改.
 
-- [WebAssembly for Proxies (ABI specification)](https://github.com/proxy-wasm/spec)
-- [WebAssembly for Proxies (AssemblyScript SDK)](https://github.com/solo-io/proxy-runtime)
-- [WebAssembly for Proxies (C++ SDK)](https://github.com/proxy-wasm/proxy-wasm-cpp-sdk)
-- [WebAssembly for Proxies (Rust SDK)](https://github.com/proxy-wasm/proxy-wasm-rust-sdk)
-- [WebAssembly for Proxies (Zig SDK)](https://github.com/mathetake/proxy-wasm-zig-sdk)
-- [TinyGo - Go compiler for small places](https://tinygo.org/)
+### Table Router
+
+与DM中的Table Router规则搭配使用, 可实现扩展列值计算.
