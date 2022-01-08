@@ -58,29 +58,9 @@ type HttpContext interface {
 	// Return types.ActionPause if you want to stop sending headers to upstream.
 	OnHttpRequestHeaders(numHeaders int, endOfStream bool) Action
 
-	// OnHttpRequestBody is called when a request body *frame* arrives.
-	// Note that this is possibly called multiple times until we see end_of_stream = true.
-	// Return types.ActionPause if you want to buffer the body and stop sending body to upstream.
-	// Even after returning types.ActionPause, this will be called when a unseen frame arrives.
-	OnHttpRequestBody(bodySize int, endOfStream bool) Action
-
 	// OnHttpRequestTrailers is called when request trailers arrives.
 	// Return types.ActionPause if you want to stop sending trailers to upstream.
 	OnHttpRequestTrailers(numTrailers int) Action
-
-	// OnHttpResponseHeaders is called when response headers arrives.
-	// Return types.ActionPause if you want to stop sending headers to downstream.
-	OnHttpResponseHeaders(numHeaders int, endOfStream bool) Action
-
-	// OnHttpResponseBody is called when a response body *frame* arrives.
-	// Note that this is possibly called multiple times until we see end_of_stream = true.
-	// Return types.ActionPause if you want to buffer the body and stop sending body to downtream.
-	// Even after returning types.ActionPause, this will be called when a unseen frame arrives.
-	OnHttpResponseBody(bodySize int, endOfStream bool) Action
-
-	// OnHttpResponseTrailers is called when response trailers arrives.
-	// Return types.ActionPause if you want to stop sending trailers to downstream.
-	OnHttpResponseTrailers(numTrailers int) Action
 
 	// OnHttpStreamDone is called before the host deletes this context.
 	// You can retreive the HTTP request/response information (such headers, etc.) during this calls.

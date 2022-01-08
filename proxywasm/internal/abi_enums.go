@@ -52,23 +52,6 @@ const (
 	MapTypeHttpRequestTrailers MapType = 1
 )
 
-type MetricType uint32
-
-const (
-	MetricTypeCounter   = 0
-	MetricTypeGauge     = 1
-	MetricTypeHistogram = 2
-)
-
-type StreamType uint32
-
-const (
-	StreamTypeRequest    StreamType = 0
-	StreamTypeResponse   StreamType = 1
-	StreamTypeDownstream StreamType = 2
-	StreamTypeUpstream   StreamType = 3
-)
-
 type Status uint32
 
 const (
