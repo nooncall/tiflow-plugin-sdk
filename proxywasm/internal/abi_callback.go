@@ -29,16 +29,6 @@ func proxyOnRequestHeaders(contextID uint32, numHeaders int, endOfStream bool) t
 	return ctx.OnHttpRequestHeaders(numHeaders, endOfStream)
 }
 
-//export proxy_on_request_body
-func proxyOnRequestBody(contextID uint32, bodySize int, endOfStream bool) types.Action {
-	ctx, ok := currentState.httpContexts[contextID]
-	if !ok {
-		panic("invalid context on proxy_on_request_body")
-	}
-	currentState.setActiveContextID(contextID)
-	return ctx.OnHttpRequestBody(bodySize, endOfStream)
-}
-
 //export proxy_on_request_trailers
 func proxyOnRequestTrailers(contextID uint32, numTrailers int) types.Action {
 	ctx, ok := currentState.httpContexts[contextID]

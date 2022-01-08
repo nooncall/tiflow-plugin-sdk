@@ -34,7 +34,6 @@ type state struct {
 	vmContext      types.VMContext
 	pluginContexts map[uint32]*pluginContextState
 	httpContexts   map[uint32]types.HttpContext
-	tcpContexts    map[uint32]types.TcpContext
 
 	contextIDToRootID map[uint32]uint32
 	activeContextID   uint32
@@ -43,7 +42,6 @@ type state struct {
 var currentState = &state{
 	pluginContexts:    make(map[uint32]*pluginContextState),
 	httpContexts:      make(map[uint32]types.HttpContext),
-	tcpContexts:       make(map[uint32]types.TcpContext),
 	contextIDToRootID: make(map[uint32]uint32),
 }
 
@@ -67,26 +65,6 @@ func (s *state) createPluginContext(contextID uint32) {
 	// See https://github.com/tetratelabs/proxy-wasm-go-sdk/issues/110
 	// TODO: refactor
 	s.contextIDToRootID[contextID] = contextID
-}
-
-func (s *state) createTcpContext(contextID uint32, pluginContextID uint32) bool {
-	root, ok := s.pluginContexts[pluginContextID]
-	if !ok {
-		panic("invalid plugin context id")
-	}
-
-	if _, ok := s.tcpContexts[contextID]; ok {
-		panic("context id duplicated")
-	}
-
-	ctx := root.context.NewTcpContext(contextID)
-	if ctx == nil {
-		// NewTcpContext is not defined by the user
-		return false
-	}
-	s.contextIDToRootID[contextID] = pluginContextID
-	s.tcpContexts[contextID] = ctx
-	return true
 }
 
 func (s *state) createHttpContext(contextID uint32, pluginContextID uint32) bool {
