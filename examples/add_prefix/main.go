@@ -90,19 +90,6 @@ func (ctx *httpHeaders) OnHttpRequestHeaders(numHeaders int, endOfStream bool) t
 }
 
 // Override types.DefaultHttpContext.
-func (ctx *httpHeaders) OnHttpResponseHeaders(numHeaders int, endOfStream bool) types.Action {
-	hs, err := proxywasm.GetHttpResponseHeaders()
-	if err != nil {
-		proxywasm.LogCriticalf("failed to get response headers: %v", err)
-	}
-
-	for _, h := range hs {
-		proxywasm.LogInfof("response header <-- %s: %s", h[0], h[1])
-	}
-	return types.ActionContinue
-}
-
-// Override types.DefaultHttpContext.
 func (ctx *httpHeaders) OnHttpStreamDone() {
 	proxywasm.LogInfof("%d finished", ctx.contextID)
 }

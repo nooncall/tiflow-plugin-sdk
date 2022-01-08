@@ -10,15 +10,8 @@ import (
 type BufferType uint32
 
 const (
-	BufferTypeHttpRequestBody      BufferType = 0
-	BufferTypeHttpResponseBody     BufferType = 1
-	BufferTypeDownstreamData       BufferType = 2
-	BufferTypeUpstreamData         BufferType = 3
-	BufferTypeHttpCallResponseBody BufferType = 4
-	BufferTypeGrpcReceiveBuffer    BufferType = 5
-	BufferTypeVMConfiguration      BufferType = 6
-	BufferTypePluginConfiguration  BufferType = 7
-	BufferTypeCallData             BufferType = 8
+	BufferTypeVMConfiguration     BufferType = 6
+	BufferTypePluginConfiguration BufferType = 7
 )
 
 type LogLevel uint32
@@ -55,12 +48,8 @@ func (l LogLevel) String() string {
 type MapType uint32
 
 const (
-	MapTypeHttpRequestHeaders       MapType = 0
-	MapTypeHttpRequestTrailers      MapType = 1
-	MapTypeHttpResponseHeaders      MapType = 2
-	MapTypeHttpResponseTrailers     MapType = 3
-	MapTypeHttpCallResponseHeaders  MapType = 6
-	MapTypeHttpCallResponseTrailers MapType = 7
+	MapTypeHttpRequestHeaders  MapType = 0
+	MapTypeHttpRequestTrailers MapType = 1
 )
 
 type MetricType uint32

@@ -14,6 +14,30 @@
 
 package internal
 
+import "github.com/tetratelabs/proxy-wasm-go-sdk/proxywasm/types"
+
+//nolint
+//export proxy_on_memory_allocate
+func proxyOnMemoryAllocate(size uint) *byte {
+	buf := make([]byte, size)
+	return &buf[0]
+}
+
+//export proxy_on_vm_start
+func proxyOnVMStart(_ uint32, vmConfigurationSize int) types.OnVMStartStatus {
+	return currentState.vmContext.OnVMStart(vmConfigurationSize)
+}
+
+//export proxy_on_configure
+func proxyOnConfigure(pluginContextID uint32, pluginConfigurationSize int) types.OnPluginStartStatus {
+	ctx, ok := currentState.pluginContexts[pluginContextID]
+	if !ok {
+		panic("invalid context on proxy_on_configure")
+	}
+	currentState.setActiveContextID(pluginContextID)
+	return ctx.context.OnPluginStart(pluginConfigurationSize)
+}
+
 //export proxy_on_context_create
 func proxyOnContextCreate(contextID uint32, pluginContextID uint32) {
 	if pluginContextID == 0 {
@@ -58,3 +82,17 @@ func proxyOnDelete(contextID uint32) {
 		panic("invalid context on proxy_on_delete")
 	}
 }
+
+//export proxy_on_tick
+func proxyOnTick(pluginContextID uint32) {
+	ctx, ok := currentState.pluginContexts[pluginContextID]
+	if !ok {
+		panic("invalid root_context_id")
+	}
+	currentState.setActiveContextID(pluginContextID)
+	ctx.context.OnTick()
+}
+
+//nolint
+//export proxy_abi_version_0_2_0
+func proxyABIVersion() {}
